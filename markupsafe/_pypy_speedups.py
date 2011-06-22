@@ -34,7 +34,9 @@ def escape(s):
             pass
         else:
             delta += d
-            repls += bool(d)
+            # Obscene performance hack, d >> 2 returns 0 for 0 or 1 for 4 and 5
+            # which are the only values that can be here.
+            repls += d >> 2
         i += 1
         # Performance hack, can go away when PyPy's bridges are better
         # optimized

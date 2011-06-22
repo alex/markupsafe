@@ -31,6 +31,7 @@ def escape(s):
             delta += ESCAPED_CHARS_DELTA_LEN[c]
             repls += 1
         i += 1
+        del c
     if not repls:
         return s
 
@@ -48,6 +49,7 @@ def escape(s):
             res.append_slice(s, in_idx, next_escp)
         res.append(ESCAPED_CHARS_REPL[ord(s[next_escp])])
         in_idx = next_escp + 1
+        del next_escp
     if in_idx < len(s):
         res.append_slice(s, in_idx, len(s))
     return Markup(res.build())

@@ -4,7 +4,7 @@ from __pypy__.builders import UnicodeBuilder
 from markupsafe import Markup
 
 
-ESCAPED_CHARS_TABLE_SIZE = 63
+ESCAPED_CHARS_TABLE_SIZE = 256
 ESCAPED_CHARS_DELTA_LEN = array.array("l", [0]) * ESCAPED_CHARS_TABLE_SIZE
 ESCAPED_CHARS_REPL = [""] * ESCAPED_CHARS_TABLE_SIZE
 for c, repl in [
@@ -28,14 +28,18 @@ def escape(s):
     # Find the total number of replacements, and their total distance.
     while i < len(s):
         c = ord(s[i])
-        # If c is in the table, and it's non zero there's an escape.
-        if c < len(ESCAPED_CHARS_DELTA_LEN) and ESCAPED_CHARS_DELTA_LEN[c]:
-            delta += ESCAPED_CHARS_DELTA_LEN[c]
-            repls += 1
+        try:
+            d = ESCAPED_CHARS_DELTA_LEN[c]
+        except IndexError:
+            pass
+        else:
+            delta += d
+            repls += d != 0
         i += 1
         # Performance hack, can go away when PyPy's bridges are better
         # optimized
         del c
+        del d
     # If there are no replacements just return the original string.
     if not repls:
         return s

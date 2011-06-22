@@ -25,31 +25,41 @@ def escape(s):
     i = 0
     delta = 0
     repls = 0
+    # Find the total number of replacements, and their total distance.
     while i < len(s):
         c = ord(s[i])
+        # If c is in the table, and it's non zero there's an escape.
         if c < len(ESCAPED_CHARS_DELTA_LEN) and ESCAPED_CHARS_DELTA_LEN[c]:
             delta += ESCAPED_CHARS_DELTA_LEN[c]
             repls += 1
         i += 1
+        # Performance hack, can go away when PyPy's bridges are better
+        # optimized
         del c
+    # If there are no replacements just return the original string.
     if not repls:
         return s
 
     res = UnicodeBuilder(len(s) + delta)
     in_idx = 0
+    # While there are still replcaements in the string.
     while repls > 0:
         repls -= 1
         next_escp = in_idx
+        # Find the next escape
         while next_escp < len(s):
             if (ord(s[next_escp]) < len(ESCAPED_CHARS_DELTA_LEN) and
                 ESCAPED_CHARS_DELTA_LEN[ord(s[next_escp])]):
                 break
             next_escp += 1
+        # If we moved anywhere between escapes, copy that data.
         if next_escp > in_idx:
             res.append_slice(s, in_idx, next_escp)
         res.append(ESCAPED_CHARS_REPL[ord(s[next_escp])])
         in_idx = next_escp + 1
+        # Another performance hack
         del next_escp
+    # If there's anything left of the string, copy it over.
     if in_idx < len(s):
         res.append_slice(s, in_idx, len(s))
     return Markup(res.build())

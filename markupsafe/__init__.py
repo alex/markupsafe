@@ -40,7 +40,7 @@ class Markup(unicode):
     >>> class Foo(object):
     ...  def __html__(self):
     ...   return '<a href="#">foo</a>'
-    ... 
+    ...
     >>> Markup(Foo())
     Markup(u'<a href="#">foo</a>')
 
@@ -226,4 +226,7 @@ class _MarkupEscapeHelper(object):
 try:
     from markupsafe._speedups import escape, escape_silent, soft_unicode
 except ImportError:
-    from markupsafe._native import escape, escape_silent, soft_unicode
+    try:
+        from markupsafe._pypy_speedups import escape, escape_silent, soft_unicode
+    except ImportError:
+        from markupsafe._native import escape, escape_silent, soft_unicode

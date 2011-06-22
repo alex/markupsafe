@@ -1,5 +1,6 @@
 import os
 import sys
+import platform
 from setuptools import setup, Extension, Feature
 from distutils.command.build_ext import build_ext
 from distutils.errors import CCompilerError, DistutilsExecError, \
@@ -93,7 +94,7 @@ def run_setup(with_binary):
 
 
 try:
-    run_setup(True)
+    run_setup(platform.python_implementation() == "CPython")
 except BuildFailed:
     LINE = '=' * 74
     BUILD_EXT_WARNING = 'WARNING: The C extension could not be compiled, speedups are not enabled.'
